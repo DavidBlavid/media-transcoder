@@ -1,8 +1,8 @@
 import subprocess
 import json
-import shutil
 import os
 import time
+from misc import delete_lines
 
 target_media_format = {
     "container": "mov,mp4,m4a,3gp,3g2,mj2",
@@ -145,8 +145,8 @@ class Media:
 
             if self.audio_codec is None and os.path.exists(silent_audio_path):
                 self.safe_remove_file(silent_audio_path)
-
-        except subprocess.CalledProcessError as e:
+        
+        except Exception as e:
             print(f"Error converting {self.filepath}: {e}")
             self.safe_remove_file(temp_save_path)
     
@@ -186,7 +186,7 @@ class Media:
     
     def test_gpu_conversion(self):
         """
-        Test if the file can be converted using GPU.
+        Test if the file can be converted using GPU. This file tests if the first second of the video can be converted using GPU.
         """
         test_output = "test_output.mp4"
         ffmpeg_command = [
@@ -219,17 +219,25 @@ class Media:
 
         if self.bit_depth == "10":
             # Convert 10-bit to 8-bit using CPU
-            print(f"10 bit depth. Converting to 8-bit with CPU: {self.filepath}")
+            print(f"Video has a bit depth of 10, which is unsupported for GPU conversion")
+            print(f"Converting to 8-bit with CPU (slower)")
             self.convert_bit_depth()
         elif self.bit_depth is None:
             # Test conversion using GPU
-            print(f"Unknown bit depth. Testing GPU conversion: {self.filepath}")
+            print(f"Unknown bit depth. Testing GPU conversion")
             if not self.test_gpu_conversion():
                 print(f"GPU test failed. Converting to 8-bit with CPU (slower)")
                 # If GPU conversion fails, convert bit depth using CPU
                 self.convert_bit_depth()
+            else:
+                print(f"GPU test passed. Continuing...")
         else:
             print(f"Supported bit depth: {self.bit_depth} bits")
+            print(f"No preprocessing required. Continuing...")
+        
+        # delete two lines
+        time.sleep(1)
+        delete_lines(2)
     
     def convert_bit_depth(self):
         """
@@ -270,6 +278,8 @@ class Media:
         filename, _ = os.path.splitext(os.path.basename(self.filepath))
         return os.path.join(base_path, filename + ".temp.mp4")
 
+    def get_filename(self):
+        return os.path.basename(self.filepath)
 
     def is_valid(self):
         """

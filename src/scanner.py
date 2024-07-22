@@ -35,17 +35,17 @@ def print_valid(video_path):
     
     media = Media.from_ffprobe(video_path)
 
+    # ignore temporary files
     if media is None:
-        print(f"Skipping ⏭️: {video_path}")
+        return
 
-    emoji = "✅" if media.is_valid() else "❌"
+    filename = media.get_filename()
+    valid = media.is_valid()
+    emoji = "✅" if valid else "❌"
 
-    # get the filename
-    filename = os.path.basename(video_path)
+    print(f'{emoji} {filename}')
 
-    print(filename, emoji)
-
-    if not media.is_valid():
+    if not valid:
         if VERBOSE:
             print()
             print(media)
@@ -58,6 +58,8 @@ if __name__ == "__main__":
     print()
 
     if len(invalid_files) > 0:
-        print("Invalid files:")
+        print(f"❌ {len(invalid_files)} invalid files found:")
         for file in invalid_files:
             print(file)
+    else:
+        print("✅ All files are valid!")
