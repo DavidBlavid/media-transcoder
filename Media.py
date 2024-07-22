@@ -93,7 +93,7 @@ class Media:
         temp_save_path = os.path.join(base_path, filename + ".temp.mp4")
         final_save_path = os.path.join(base_path, filename + ".mp4")
 
-        print(f"{self.filepath} -> {temp_save_path} -> {final_save_path}")
+        # print(f"{self.filepath} -> {temp_save_path} -> {final_save_path}")
 
         ffmpeg_command = ["ffmpeg"]
 
@@ -131,7 +131,7 @@ class Media:
 
         ffmpeg_command.append(temp_save_path)
 
-        print(" ".join(ffmpeg_command))
+        # print(" ".join(ffmpeg_command))
 
         try:
             self.subprocess_verbosity(ffmpeg_command)
