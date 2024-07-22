@@ -13,8 +13,6 @@ base_path = 'E:/Media/'
 USE_GPU = False
 ##########################################
 
-
-
 video_fileextensions = [".mp4", ".mkv", ".avi", ".webm", ".flv", ".mov", ".wmv", ".mpg", ".mpeg", ".m4v", ".3gp"]
 incorrect_files = []
 
@@ -51,7 +49,7 @@ def process_video(video_path):
     media: Media | None = Media.from_ffprobe(video_path)
 
     if media is None:
-        print(f"Skipping ⏭️: {media.filepath}")
+        print(f"Skipping ⏭️: {video_path}")
         return
 
     if not media.is_valid():
