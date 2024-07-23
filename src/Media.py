@@ -233,18 +233,16 @@ class Media:
                 self.convert_bit_depth()
             else:
                 print(f"✅  GPU test passed. Continuing...")
-                gpu_enabled = True
         else:
             print(f"✅  Supported bit depth: {self.bit_depth} bits")
             print(f"✅  No preprocessing required. Continuing...")
-            gpu_enabled = True
         
         # delete two lines
         time.sleep(1)
         delete_lines(2)
-
-        if gpu_enabled:
-            update_line(f"⏭️  {CMD_COLORS['yellow']} Converting (CUDA): {CMD_COLORS["reset"]} {self.get_filename()}")
+        
+        # print the cool cuda conversion message
+        update_line(f"⏭️  {CMD_COLORS['yellow']} Converting (GPU): {CMD_COLORS["reset"]} {self.get_filename()}")
     
     def convert_bit_depth(self):
         """
