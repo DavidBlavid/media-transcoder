@@ -1,5 +1,5 @@
 import os
-from misc import update_line
+from misc import update_line, CMD_COLORS
 from Media import Media
 
 
@@ -52,15 +52,15 @@ def process_video(video_path):
         return
 
     if not media.is_valid():
-        print(f"🔄 Converting: {media.get_filename()}")
+        print(f"🔄 {CMD_COLORS["blue"]} Converting: {CMD_COLORS["reset"]} {media.get_filename()}")
 
         # here we actually convert the video
         media.convert(use_gpu=USE_GPU)
 
-        update_line(f"✅ Valid: {media.get_filename()}")
+        update_line(f"✅ {CMD_COLORS["green"]} Valid: {CMD_COLORS["reset"]} {media.get_filename()}")
     
     else:
-        print(f"✅ Valid: {media.get_filename()}")
+        print(f"✅ {CMD_COLORS["green"]} Valid: {CMD_COLORS["reset"]} {media.get_filename()}")
 
 if __name__ == "__main__":
     process_folder(base_path)

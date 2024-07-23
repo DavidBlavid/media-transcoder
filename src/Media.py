@@ -2,7 +2,7 @@ import subprocess
 import json
 import os
 import time
-from misc import delete_lines
+from misc import delete_lines, update_line, CMD_COLORS
 
 target_media_format = {
     "container": "mov,mp4,m4a,3gp,3g2,mj2",
@@ -217,27 +217,34 @@ class Media:
         Preprocess the file to ensure it can be converted using GPU if possible.
         """
 
+        gpu_enabled = False
+
         if self.bit_depth == "10":
             # Convert 10-bit to 8-bit using CPU
-            print(f"Video has a bit depth of 10, which is unsupported for GPU conversion")
-            print(f"Converting to 8-bit with CPU (slower)")
+            print(f"⚠️   Video has a bit depth of 10, which is unsupported for GPU conversion")
+            print(f"⚙️   Converting to 8-bit with CPU (slower)")
             self.convert_bit_depth()
         elif self.bit_depth is None:
             # Test conversion using GPU
-            print(f"Unknown bit depth. Testing GPU conversion")
+            print(f"❔ {CMD_COLORS["magenta"]} Unknown bit depth. {CMD_COLORS["reset"]} Testing GPU conversion")
             if not self.test_gpu_conversion():
-                print(f"GPU test failed. Converting to 8-bit with CPU (slower)")
+                print(f"⚠️   GPU test failed. Converting to 8-bit with CPU... (slower)")
                 # If GPU conversion fails, convert bit depth using CPU
                 self.convert_bit_depth()
             else:
-                print(f"GPU test passed. Continuing...")
+                print(f"✅  GPU test passed. Continuing...")
+                gpu_enabled = True
         else:
-            print(f"Supported bit depth: {self.bit_depth} bits")
-            print(f"No preprocessing required. Continuing...")
+            print(f"✅  Supported bit depth: {self.bit_depth} bits")
+            print(f"✅  No preprocessing required. Continuing...")
+            gpu_enabled = True
         
         # delete two lines
         time.sleep(1)
         delete_lines(2)
+
+        if gpu_enabled:
+            update_line(f"⏭️  {CMD_COLORS['yellow']} Converting (CUDA): {CMD_COLORS["reset"]} {self.get_filename()}")
     
     def convert_bit_depth(self):
         """
@@ -261,15 +268,24 @@ class Media:
         self.safe_remove_file(temp_save_path)
     
     def add_silent_audio(self, duration):
+
+        print(f"🔄  {CMD_COLORS['blue']} Creating silent audio track: {CMD_COLORS['reset']} {self.get_filename()}...")
+
         silent_audio_path = os.path.join(os.path.dirname(self.filepath), "silent.mp3")
+
+        # delete the silent audio track if it exists
+        # we need to create a new one with the correct duration
+        if os.path.exists(silent_audio_path):
+            self.safe_remove_file(silent_audio_path)
         
-        # Create a silent audio track if it doesn't exist
-        if not os.path.exists(silent_audio_path):
-            ffmpeg_command = [
-                "ffmpeg", "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
-                "-t", str(duration), "-q:a", "9", silent_audio_path
-            ]
-            self.subprocess_verbosity(ffmpeg_command)
+        # create a silent audio track with the same duration as the video
+        ffmpeg_command = [
+            "ffmpeg", "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+            "-t", str(duration), "-q:a", "9", silent_audio_path
+        ]
+        self.subprocess_verbosity(ffmpeg_command)
+        
+        delete_lines(1)
         
         return silent_audio_path
     

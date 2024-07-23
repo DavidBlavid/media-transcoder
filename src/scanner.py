@@ -52,6 +52,8 @@ def print_valid(video_path):
 
         invalid_files.append(video_path)
 
+
+
 if __name__ == "__main__":
     process_folder(base_path)
 
